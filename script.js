@@ -39,28 +39,78 @@ document.getElementById("budgetForm").addEventListener("submit", async (e) => {
   }).filter(it => it.desc && !isNaN(it.cant) && !isNaN(it.precio));
 
   const doc = new jsPDF();
-  doc.addImage(COMPANY_INFO.logo, 'JPEG', 10, 10, 40, 20);
-  doc.setFontSize(16);
-  doc.text(COMPANY_INFO.name, 60, 20);
-  doc.setFontSize(12);
-  doc.text(`Tel: ${COMPANY_INFO.phone}`, 60, 28);
-  doc.text(`Cliente: ${cliente}`, 10, 50);
-  doc.text(`Teléfono: ${telefono}`, 10, 58);
+  const margin = 10;
+  let y = margin;
 
-  let y = 70;
+  // Logo
+  doc.addImage(COMPANY_INFO.logo, 'JPEG', margin, y, 40, 20);
+
+  // Empresa
+  doc.setFontSize(16);
+  doc.text(COMPANY_INFO.name, margin + 50, y + 10);
+  doc.setFontSize(10);
+  doc.text(`Tel: ${COMPANY_INFO.phone}`, margin + 50, y + 16);
+
+  // Fecha
+  const fecha = new Date().toLocaleDateString();
+  doc.text(`Fecha: ${fecha}`, 160, y + 10, { align: 'right' });
+
+  y += 30;
+  doc.setFontSize(12);
+  doc.setDrawColor(0);
+  doc.setFillColor(230, 230, 230);
+  doc.rect(margin, y - 6, 190 - 2 * margin, 8, 'F');
+  doc.text('Datos del Cliente', margin + 2, y);
+
+  y += 10;
+  doc.setFontSize(11);
+  doc.text(`Nombre: ${cliente}`, margin, y);
+  doc.text(`Teléfono: ${telefono}`, margin, y + 8);
+
+  // Título cotización
+  y += 20;
+  doc.setFontSize(12);
+  doc.setFillColor(230, 230, 230);
+  doc.rect(margin, y - 6, 190 - 2 * margin, 8, 'F');
+  doc.text('Detalle de la Cotización', margin + 2, y);
+
+  // Encabezado tabla
+  y += 10;
+  const colX = [margin, 80, 110, 140, 170];
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'bold');
+  doc.text("Descripción", colX[0], y);
+  doc.text("Cant.", colX[1], y);
+  doc.text("P.Unit.", colX[2], y);
+  doc.text("Subtotal", colX[3], y);
+  doc.setFont(undefined, 'normal');
+  y += 6;
+
   let total = 0;
   items.forEach(it => {
     const lineTot = it.cant * it.precio;
     total += lineTot;
-    doc.text(`${it.desc}`, 10, y);
-    doc.text(`${it.cant}`, 110, y);
-    doc.text(`$${it.precio.toFixed(2)}`, 130, y);
-    doc.text(`$${lineTot.toFixed(2)}`, 160, y);
-    y += 8;
+    doc.text(it.desc, colX[0], y);
+    doc.text(String(it.cant), colX[1], y);
+    doc.text(`$${it.precio.toFixed(2)}`, colX[2], y);
+    doc.text(`$${lineTot.toFixed(2)}`, colX[3], y);
+    y += 6;
+    if (y > 270) {
+      doc.addPage();
+      y = margin;
+    }
   });
 
-  doc.text(`Total: $${total.toFixed(2)}`, 10, y + 10);
+  // Línea separadora
+  doc.setDrawColor(0);
+  doc.line(margin, y, 190 - margin, y);
+  y += 8;
 
+  doc.setFont(undefined, 'bold');
+  doc.text(`Total: $${total.toFixed(2)}`, colX[3], y);
+  doc.setFont(undefined, 'normal');
+
+  // Guardar PDF
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob);
   const fileName = `Presupuesto_${cliente}.pdf`;
@@ -72,6 +122,7 @@ document.getElementById("budgetForm").addEventListener("submit", async (e) => {
   link.click();
   link.remove();
 
+  // Compartir si se puede
   const shareBtn = document.getElementById('shareBtn');
   shareBtn.style.display = 'block';
   shareBtn.onclick = async () => {
@@ -83,4 +134,3 @@ document.getElementById("budgetForm").addEventListener("submit", async (e) => {
     }
   };
 });
-
