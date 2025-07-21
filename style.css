@@ -1,0 +1,35 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.logo {
+  width: 120px;
+  display: block;
+  margin: 0 auto 20px;
+}
+label, input, button {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+}
+.item {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+button {
+  padding: 12px;
+  background: #333;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
