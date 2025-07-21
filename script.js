@@ -11,25 +11,34 @@ function agregarItem() {
   div.classList.add('item');
   div.innerHTML = `
     <label>Descripción:</label>
-    <input type="text" class="desc" required>
+    <input type="text" class="desc">
     <label>Cantidad:</label>
-    <input type="number" class="cant" value="1" min="1" required>
+    <input type="number" class="cant" value="1" min="1">
     <label>Precio Unitario:</label>
-    <input type="number" class="precio" value="0" min="0" required>
+    <input type="number" class="precio" value="0" min="0">
+    <button type="button" class="eliminar-btn">🗑️ Eliminar</button>
   `;
+
+  div.querySelector(".eliminar-btn").onclick = () => div.remove();
   container.appendChild(div);
 }
 
 document.getElementById("budgetForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  const { jsPDF } = window.jspdf;
   const cliente = document.getElementById("cliente").value;
   const telefono = document.getElementById("telefono").value;
-  const items = Array.from(document.querySelectorAll('.item')).map(div => ({
-    desc: div.querySelector('.desc').value,
-    cant: +div.querySelector('.cant').value,
-    precio: +div.querySelector('.precio').value
-  }));
-  const doc = new jspdf.jsPDF();
+
+  const items = Array.from(document.querySelectorAll('.item')).map(div => {
+    return {
+      desc: div.querySelector('.desc').value.trim(),
+      cant: parseFloat(div.querySelector('.cant').value),
+      precio: parseFloat(div.querySelector('.precio').value)
+    };
+  }).filter(it => it.desc && !isNaN(it.cant) && !isNaN(it.precio));
+
+  const doc = new jsPDF();
   doc.addImage(COMPANY_INFO.logo, 'JPEG', 10, 10, 40, 20);
   doc.setFontSize(16);
   doc.text(COMPANY_INFO.name, 60, 20);
@@ -37,23 +46,28 @@ document.getElementById("budgetForm").addEventListener("submit", async (e) => {
   doc.text(`Tel: ${COMPANY_INFO.phone}`, 60, 28);
   doc.text(`Cliente: ${cliente}`, 10, 50);
   doc.text(`Teléfono: ${telefono}`, 10, 58);
-  let y = 70, tot=0;
+
+  let y = 70;
+  let total = 0;
   items.forEach(it => {
+    const lineTot = it.cant * it.precio;
+    total += lineTot;
     doc.text(`${it.desc}`, 10, y);
     doc.text(`${it.cant}`, 110, y);
     doc.text(`$${it.precio.toFixed(2)}`, 130, y);
-    const lineTot = it.cant * it.precio;
-    tot += lineTot;
     doc.text(`$${lineTot.toFixed(2)}`, 160, y);
     y += 8;
   });
-  doc.text(`Total: $${tot.toFixed(2)}`, 10, y+10);
+
+  doc.text(`Total: $${total.toFixed(2)}`, 10, y + 10);
 
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob);
+  const fileName = `Presupuesto_${cliente}.pdf`;
+
   const link = document.createElement('a');
   link.href = pdfUrl;
-  link.download = `Presupuesto_${cliente}.pdf`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -61,10 +75,12 @@ document.getElementById("budgetForm").addEventListener("submit", async (e) => {
   const shareBtn = document.getElementById('shareBtn');
   shareBtn.style.display = 'block';
   shareBtn.onclick = async () => {
-    if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], link.download, { type: 'application/pdf' })] })) {
-      await navigator.share({ files: [new File([pdfBlob], link.download, { type: 'application/pdf' })] });
+    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
     } else {
-      alert('Compartir no compatible en este dispositivo');
+      alert('Este dispositivo no soporta compartir archivos.');
     }
   };
 });
+
