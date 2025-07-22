@@ -1,36 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presupuesto - LIBE Carpintería</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="manifest" href="manifest.json">
-</head>
-<body>
-  <div class="container">
-    <h1>LIBE Carpintería</h1>
-    <img src="LIBE.jpg" alt="Logo" class="logo">
-    <form id="budgetForm">
-      <label>Nombre del cliente:</label>
-      <input type="text" id="cliente" required>
-      <label>Teléfono:</label>
-      <input type="tel" id="telefono" required>
-      <div id="itemsContainer">
-        <h3>Ítems</h3>
-      </div>
-      <button type="button" onclick="agregarItem()">+ Agregar Ítem</button>
-      <button type="submit">Generar PDF</button>
-    </form>
-    <button id="shareBtn" style="display:none;">Compartir PDF</button>
-  </div>
-  <script src="script.js"></script>
-<script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Presupuesto - LIBE Carpintería</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="manifest" href="manifest.json" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>LIBE Carpintería</h1>
+      <img src="LIBE.jpg" alt="Logo" class="logo" />
+      <form id="budgetForm">
+        <label>Nombre del cliente:</label>
+        <input type="text" id="cliente" required />
+        <label>Teléfono:</label>
+        <input type="tel" id="telefono" required />
+        <div id="itemsContainer">
+          <h3>Ítems</h3>
+        </div>
+        <button type="button" onclick="agregarItem()">+ Agregar Ítem</button>
+        <button type="submit">Generar PDF</button>
+      </form>
+      <button id="shareBtn" style="display: none">Compartir PDF</button>
+    </div>
+    <script src="script.js"></script>
+    <!-- <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
-</script>
-
-</body>
+</script> -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/service-worker.js")
+          .then((reg) => console.log("SW registrado ✔️"))
+          .catch((err) => console.error("Error al registrar SW", err));
+      }
+    </script>
+  </body>
 </html>
